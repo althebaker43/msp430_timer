@@ -42,7 +42,7 @@ all : test
 
 .PHONY : test
 test : $(TEST_EXE)
-	./$(TEST_EXE) | tee $(TEST_LOG)
+	./$(TEST_EXE) | tee $(TEST_LOG) | grep '^.*\.c:[0-9]*:test_.*:FAIL'
 	
 $(TEST_EXE) : $(RUNNER_SRC) $(UNITY_OBJ) $(TEST_OBJ) $(DRIVER_OBJ)
 	$(CC) \
@@ -60,7 +60,7 @@ $(DRIVER_OBJ) : $(DRIVER_SRC)
 
 $(RUNNER_SRC) : $(TEST_SRC)
 	ruby $(RUNNER_GEN_RUBY) \
-	  $(TEST_SRC) \
+	  $< \
 	  $@
 
 $(TEST_OBJ) : $(TEST_SRC)
