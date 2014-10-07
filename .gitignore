@@ -1,6 +1,8 @@
 *.o
 *.swp
+*.old
 ~*
 test.log
+fail.log
 testTimerDriver
 testRunnerTimerDriver.c

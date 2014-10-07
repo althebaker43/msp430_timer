@@ -24,6 +24,7 @@ RUNNER_GEN_RUBY=$(UNITY_ROOT)/auto/generate_test_runner.rb
 TEST_EXE=testTimerDriver
 
 TEST_LOG=test.log
+FAIL_LOG=fail.log
 
 INCLUDE_DIRS= \
 	$(UNITY_ROOT)/src
@@ -34,15 +35,20 @@ RESIDUE= \
 	$(DRIVER_OBJ) \
 	$(RUNNER_SRC) \
 	$(TEST_EXE) \
-	$(TEST_LOG)
+	$(TEST_LOG) \
+	$(FAIL_LOG)
 
 
 .PHONY : all
-all : test
+all : test $(FAIL_LOG)
+	cat $(FAIL_LOG)
 
 .PHONY : test
-test : $(TEST_EXE)
-	./$(TEST_EXE) | tee $(TEST_LOG) | grep '^.*\.c:[0-9]*:test_.*:FAIL'
+test $(TEST_LOG) : $(TEST_EXE)
+	./$(TEST_EXE) > $(TEST_LOG)
+
+$(FAIL_LOG) : $(TEST_LOG)
+	-grep -s '^.*\.c:[0-9]*:test_.*:FAIL' $< > $@
 	
 $(TEST_EXE) : $(RUNNER_SRC) $(UNITY_OBJ) $(TEST_OBJ) $(DRIVER_OBJ)
 	$(CC) \

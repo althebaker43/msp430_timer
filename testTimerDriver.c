@@ -1,5 +1,7 @@
 #include "unity.h"
 
+#include "TimerDriver.h"
+
 
 void setUp()
 {
@@ -9,17 +11,11 @@ void tearDown()
 {
 }
 
-void test_FirstTest()
+void test_NoTimersBeforeInit()
 {
-  int testVal = 1;
+  TEST_ASSERT_NULL(CreateTimer());
 
-  TEST_ASSERT_EQUAL(2, testVal);
+  InitTimers();
+  
+  TEST_ASSERT_NOT_NULL(CreateTimer());
 }
-
-void test_SecondTest()
-{
-  int testVal = 1;
-
-  TEST_ASSERT_EQUAL(1, testVal);
-}
-
