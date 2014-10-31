@@ -1,87 +1,70 @@
 PROJECT_ROOT=$(MSP430_TIMER_ROOT)
 
+CPPUTEST_ROOT=/usr/include/CppUTest
+CPPUTEST_LDFLAGS=-lCppUTest
+
 CC=gcc
 CFLAGS= \
 	-g \
 	-Wall \
 	-Werror
+C_INCLUDES=-include $(CPPUTEST_ROOT)/MemoryLeakDetectorMallocMacros.h
 
-UNITY_OBJ=unity.o
-UNITY_CFLAGS= \
-	$(CFLAGS) \
-	-DTEST \
-	-DUNITY_SUPPORT_64
+CCC=g++
+CCFLAGS=$(CFLAGS)
+CC_INCLUDES=-include $(CPPUTEST_ROOT)/MemoryLeakDetectorNewMacros.h
 
-TEST_SRC=testTimerDriver.c
-TEST_OBJ=testTimerDriver.o
+DRIVER_OBJS= \
+	TimerDriver.o
 
-DRIVER_SRC=TimerDriver.c
-DRIVER_OBJ=TimerDriver.o
-
-RUNNER_SRC=testRunnerTimerDriver.c
-RUNNER_GEN_RUBY=$(UNITY_ROOT)/auto/generate_test_runner.rb
-
-TEST_EXE=testTimerDriver
-
+TESTS= \
+	TimerDriverBasicTest
+TEST_OBJS=$(TESTS:%=%.o)
+TEST_DRIVER=TimerDriverTester
 TEST_LOG=test.log
-FAIL_LOG=fail.log
-
-INCLUDE_DIRS= \
-	$(UNITY_ROOT)/src
 
 RESIDUE= \
-	$(UNITY_OBJ) \
-	$(TEST_OBJ) \
-	$(DRIVER_OBJ) \
-	$(RUNNER_SRC) \
-	$(TEST_EXE) \
+	$(TEST_DRIVER) \
+	$(DRIVER_OBJS) \
+	$(TEST_OBJS) \
 	$(TEST_LOG) \
 	$(FAIL_LOG)
 
 
 .PHONY : all
-all : test $(FAIL_LOG)
-	cat $(FAIL_LOG)
+all : test
+	-grep -s '^.*\.cpp:[0-9]*: error' $(TEST_LOG)
+
 
 .PHONY : test
-test $(TEST_LOG) : $(TEST_EXE)
-	./$(TEST_EXE) > $(TEST_LOG)
-
-$(FAIL_LOG) : $(TEST_LOG)
-	-grep -s '^.*\.c:[0-9]*:test_.*:FAIL' $< > $@
+test $(TEST_LOG) : $(TEST_DRIVER)
+	-./$(TEST_DRIVER) > $(TEST_LOG)
 	
-$(TEST_EXE) : $(RUNNER_SRC) $(UNITY_OBJ) $(TEST_OBJ) $(DRIVER_OBJ)
-	$(CC) \
-	  $(INCLUDE_DIRS:%=-I%) \
-	  $(CFLAGS) \
-	  -o $@ \
-	  $^
 
-$(DRIVER_OBJ) : $(DRIVER_SRC)
-	$(CC) \
-	  $(INCLUDE_DIRS:%=-I%) \
-	  $(CFLAGS) \
-	  -c -o $@ \
-	  $(DRIVER_SRC)
+$(TEST_DRIVER) : $(DRIVER_OBJS) $(TEST_OBJS)
+	$(CCC) \
+	    $(CC_INCLUDES) \
+	    $(CCFLAGS) \
+	    -o $@ \
+	    $@.cpp $(DRIVER_OBJS) $(TEST_OBJS) \
+	    $(CPPUTEST_LDFLAGS)
 
-$(RUNNER_SRC) : $(TEST_SRC)
-	ruby $(RUNNER_GEN_RUBY) \
-	  $< \
-	  $@
 
-$(TEST_OBJ) : $(TEST_SRC)
+$(DRIVER_OBJS) : %.o : %.c %.h
 	$(CC) \
-	  $(INCLUDE_DIRS:%=-I%) \
-	  $(CFLAGS) \
-	  -c -o $@ \
-	  $(TEST_SRC)
+	    $(C_INCLUDES) \
+	    $(CCFLAGS) \
+	    -c -o $@ \
+	    $*.c
 
-$(UNITY_OBJ) : $(UNITY_ROOT)/src/unity.c
-	$(CC) \
-	  $(INCLUDE_DIRS:%=-I%) \
-	  $(UNITY_CFLAGS) \
-	  -c -o $@ \
-	  $(UNITY_ROOT)/src/unity.c
+
+$(TEST_OBJS) : %.o : %.cpp %.hpp
+	$(CCC) \
+	    $(CC_INCLUDES) \
+	    $(CCFLAGS) \
+	    -c -o $@ \
+	    $*.cpp
+
 
 .PHONY : clean
 clean :
