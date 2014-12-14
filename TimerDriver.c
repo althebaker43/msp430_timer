@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-typedef int BOOL;
+typedef int Bool;
 #define TRUE 1
 #define FALSE 0
 
@@ -11,25 +11,39 @@ struct TimerInstance_struct
 };
 
 
-static BOOL isDriverInitialized = FALSE;
+static Bool isDriverInitialized = FALSE;
 static TimerInstance instance;
 
 
 void
 InitTimers()
 {
-  isDriverInitialized = TRUE;
+    isDriverInitialized = TRUE;
+}
+
+void
+TerminateTimers()
+{
+    isDriverInitialized = FALSE;
 }
 
 TimerInstance*
 CreateTimer()
 {
-  if (isDriverInitialized == TRUE)
-  {
-    return &instance;
-  }
-  else
-  {
-    return NULL;
-  }
+    if (isDriverInitialized == TRUE)
+    {
+        return &instance;
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+void
+DestroyTimer(
+        TimerInstance** timer
+        )
+{
+    *timer = NULL;
 }

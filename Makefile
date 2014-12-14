@@ -18,7 +18,8 @@ DRIVER_OBJS= \
 	TimerDriver.o
 
 TESTS= \
-	TimerDriverBasicTest
+	TimerDriverBasicTest \
+	TimerDriverObjectTest
 TEST_OBJS=$(TESTS:%=%.o)
 TEST_DRIVER=TimerDriverTester
 TEST_LOG=test.log
@@ -32,7 +33,7 @@ RESIDUE= \
 
 
 .PHONY : all
-all : test
+all : tags test
 	-grep -s '^.*\.cpp:[0-9]*: error' $(TEST_LOG)
 
 
@@ -65,6 +66,8 @@ $(TEST_OBJS) : %.o : %.cpp %.hpp
 	    -c -o $@ \
 	    $*.cpp
 
+tags : $(DRIVER_OBJS:%.o=%.c) $(DRIVER_OBJS:%.o=%.h)
+	ctags $^
 
 .PHONY : clean
 clean :

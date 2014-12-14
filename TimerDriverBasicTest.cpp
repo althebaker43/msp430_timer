@@ -14,3 +14,11 @@ TEST(TimerDriverBasicTest, NoTimersBeforeInit)
 
     CHECK(NULL != CreateTimer());
 }
+
+TEST(TimerDriverBasicTest, NoTimersAfterTerminate)
+{
+    InitTimers();
+    TerminateTimers();
+
+    POINTERS_EQUAL(NULL, CreateTimer());
+}

@@ -36,6 +36,15 @@ void
 InitTimers();
 
 /**
+ * Deletes all timers and terminates the timer driver
+ *
+ * Production code should never have to use this. This is mostly for testing
+ * purposes.
+ */
+void
+TerminateTimers();
+
+/**
  * Allocates a new timer context (if possible)
  *
  * \return Pointer to new context, or NULL if not created
