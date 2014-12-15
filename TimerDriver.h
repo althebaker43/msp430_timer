@@ -13,6 +13,24 @@
 typedef struct TimerInstance_struct TimerInstance;
 
 /**
+ * Enumeration of all timer instance IDs
+ */
+typedef enum TimerInstanceID_enum
+{
+    TIMER_TA0
+} TimerInstanceID;
+
+/**
+ * Enumeration of all timer clock sources
+ */
+typedef enum TimerClockSource_enum
+{
+    TIMER_CLOCKSOURCE_SMCLK,
+    TIMER_CLOCKSOURCE_ACLK,
+    TIMER_CLOCKSOURCE_UNKNOWN
+} TimerClockSource;
+
+/**
  * Typedef for timer cycle handler
  */
 typedef void (*TimerCycleHandler)(void);
@@ -69,14 +87,6 @@ void
 DestroyAllTimers();
 
 /**
- * Function for getting the timer's system ID
- */
-unsigned int
-GetTimerSystemID(
-    TimerInstance*
-    );
-
-/**
  * Provides the given timer's status
  *
  * \return Status of the given timer
@@ -89,10 +99,19 @@ GetTimerStatus(
 /**
  * Provides the given timer's system clock source enumerator
  */
-unsigned int
+TimerClockSource
 GetTimerClockSource(
-    TimerInstance*  instance  /**< Pointer to instance of timer to get source of */
-    );
+        TimerInstanceID timerID
+        );
+
+/**
+ * Sets the given timer's system clock source
+ */
+void
+SetTimerClockSource(
+        TimerInstanceID     timerID,
+        TimerClockSource    clockSource
+        );
 
 /**
  * Provides the given timer's compare match value
@@ -123,7 +142,7 @@ GetTimerCompareMatchesPerCycle(
  */
 unsigned int
 StartTimer(
-    TimerInstance*  instance  /**< Pointer to instance of timer to start */
+    TimerInstanceID timer   /**< ID of instance of timer to start */
     );
 
 /**
